@@ -1,17 +1,43 @@
-# operation_roster
+# Operation Roster
 
-A new Flutter project.
+A Flutter-based duty roster management application designed to make operation duty scheduling simple and organized.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Monthly Duty Roster Management
+- Group-wise Roster Management
+- Emergency Roster Management
+- Add and manage emergency duties
+- Simple and user-friendly interface
+- Android support
 
-A few resources to get you started if this is your first Flutter project:
+## Download APK
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+The latest Android APK is available from the GitHub Releases section:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**Operation Roster v1.0.0**
+
+Go to **Releases → Assets → app-release.apk** to download and install the application.
+
+## Screenshots
+
+Screenshots of the application will be added here.
+
+## Built With
+
+- Flutter
+- Dart
+- Android
+
+## Project Structure
+
+- `lib/models` - Application data models
+- `lib/screens` - Application screens and UI
+- `lib/services` - Roster management services
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ashraful00097/operation-roster.git
