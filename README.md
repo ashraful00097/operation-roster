@@ -11,14 +11,13 @@ A Flutter-based duty roster management application designed to make operation du
 - Simple and user-friendly interface
 - Android support
 
-## Download APK
+## 📱 Download APK
 
-The latest Android APK is available from the GitHub Releases section:
+### [⬇️ Download Operation Roster v1.0.0 APK](https://github.com/ashraful00097/operation-roster/releases/download/v1.0.0/app-release.apk)
 
-**Operation Roster v1.0.0**
+Download the latest Android version and install it on your device.
 
-Go to **Releases → Assets → app-release.apk** to download and install the application.
-
+> Current Version: v1.0.0
 ## Screenshots
 
 Screenshots of the application will be added here.
