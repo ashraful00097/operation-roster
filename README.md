@@ -19,8 +19,21 @@ Download the latest Android version and install it on your device.
 
 > Current Version: v1.0.0
 ## Screenshots
+## 📱 App Screenshots
 
-Screenshots of the application will be added here.
+<p align="center">
+  <img src="screenshots/home.jpeg" width="220" alt="Home Screen"/>
+  <img src="screenshots/monthly-roster.jpeg" width="220" alt="Monthly Roster"/>
+  <img src="screenshots/emergency-roster.jpeg" width="220" alt="Emergency Roster"/>
+  <img src="screenshots/group-roster.jpeg" width="220" alt="Group Roster"/>
+</p>
+
+<p align="center">
+  <b>Home</b> &nbsp;&nbsp;&nbsp;
+  <b>Monthly Roster</b> &nbsp;&nbsp;&nbsp;
+  <b>Emergency Roster</b> &nbsp;&nbsp;&nbsp;
+  <b>Group Roster</b>
+</p>
 
 ## Built With
 
