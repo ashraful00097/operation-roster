@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../services/roster_service.dart';
 import 'emergency_roster_screen.dart';
+import 'excel_roster_screen.dart';
 import 'group_roster_screen.dart';
 import 'monthly_roster_screen.dart';
 
@@ -74,14 +75,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<bool> showExitConfirmation() async {
     final shouldExit = await showDialog<bool>(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           icon: const Icon(
             Icons.exit_to_app_rounded,
             color: primaryBlue,
             size: 36,
           ),
-
           title: const Text(
             'Exit App?',
             textAlign: TextAlign.center,
@@ -89,16 +89,14 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           content: const Text(
             'Do you want to exit?',
             textAlign: TextAlign.center,
           ),
-
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false);
+                Navigator.of(dialogContext).pop(false);
               },
               child: const Text(
                 'Cancel',
@@ -107,14 +105,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: primaryBlue,
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                Navigator.of(context).pop(true);
+                Navigator.of(dialogContext).pop(true);
               },
               icon: const Icon(
                 Icons.exit_to_app_rounded,
@@ -220,6 +217,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ===================================================
+  // OPEN EXCEL ROSTER
+  // ===================================================
+
+  void openExcelRoster() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const ExcelRosterScreen(),
+      ),
+    );
+  }
+
+  // ===================================================
   // BUILD
   // ===================================================
 
@@ -233,21 +244,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return PopScope(
       canPop: false,
-
       onPopInvokedWithResult: (didPop, result) async {
-  if (didPop) {
-    return;
-  }
+        if (didPop) {
+          return;
+        }
 
-  final shouldExit =
-      await showExitConfirmation();
+        final shouldExit =
+            await showExitConfirmation();
 
-  if (!mounted || !shouldExit) {
-    return;
-  }
+        if (!mounted || !shouldExit) {
+          return;
+        }
 
-  SystemNavigator.pop(animated: true);
-},
+        SystemNavigator.pop(animated: true);
+      },
 
       child: Scaffold(
         backgroundColor: backgroundColor,
@@ -356,21 +366,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: InkWell(
                           borderRadius:
-                              BorderRadius.circular(
-                            14,
-                          ),
+                              BorderRadius.circular(14),
                           onTap: selectDate,
                           child: Padding(
                             padding:
-                                const EdgeInsets
-                                    .symmetric(
+                                const EdgeInsets.symmetric(
                               vertical: 17,
                               horizontal: 6,
                             ),
                             child: Row(
                               mainAxisAlignment:
-                                  MainAxisAlignment
-                                      .center,
+                                  MainAxisAlignment.center,
                               children: [
                                 const Icon(
                                   Icons
@@ -379,9 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   size: 23,
                                 ),
 
-                                const SizedBox(
-                                  width: 9,
-                                ),
+                                const SizedBox(width: 9),
 
                                 Flexible(
                                   child: Text(
@@ -394,8 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         const TextStyle(
                                       fontSize: 17,
                                       fontWeight:
-                                          FontWeight
-                                              .bold,
+                                          FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -408,8 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       IconButton(
                         onPressed: nextDay,
                         icon: const Icon(
-                          Icons
-                              .chevron_right_rounded,
+                          Icons.chevron_right_rounded,
                           size: 32,
                         ),
                       ),
@@ -421,8 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 7),
 
                   Align(
-                    alignment:
-                        Alignment.centerRight,
+                    alignment: Alignment.centerRight,
                     child: TextButton.icon(
                       onPressed: goToToday,
                       icon: const Icon(
@@ -481,9 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: primaryBlue,
                       size: 25,
                     ),
-
                     SizedBox(width: 8),
-
                     Text(
                       'Group Status',
                       style: TextStyle(
@@ -541,7 +540,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 58,
-
                   child: OutlinedButton.icon(
                     style:
                         OutlinedButton.styleFrom(
@@ -554,20 +552,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape:
                           RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(
-                          16,
-                        ),
+                            BorderRadius.circular(16),
                       ),
                     ),
-
                     onPressed:
                         openEmergencyRoster,
-
                     icon: const Icon(
                       Icons.emergency_rounded,
                       size: 23,
                     ),
-
                     label: const Text(
                       'Emergency Roster',
                       style: TextStyle(
@@ -588,7 +581,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 58,
-
                   child: FilledButton.icon(
                     style:
                         FilledButton.styleFrom(
@@ -597,23 +589,59 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape:
                           RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(
-                          16,
-                        ),
+                            BorderRadius.circular(16),
                       ),
                     ),
-
                     onPressed:
                         openMonthlyRoster,
-
                     icon: const Icon(
                       Icons
                           .calendar_view_month_rounded,
                       size: 23,
                     ),
-
                     label: const Text(
                       'View Monthly Roster',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight:
+                            FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // =========================================
+                // EXCEL DUTY ROSTER BUTTON
+                // =========================================
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 58,
+                  child: OutlinedButton.icon(
+                    style:
+                        OutlinedButton.styleFrom(
+                      foregroundColor: primaryBlue,
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(
+                        color: primaryBlue,
+                        width: 1.5,
+                      ),
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16),
+                      ),
+                    ),
+                    onPressed:
+                        openExcelRoster,
+                    icon: const Icon(
+                      Icons.table_chart_rounded,
+                      size: 23,
+                    ),
+                    label: const Text(
+                      'Excel Duty Roster',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight:
@@ -650,7 +678,6 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(
@@ -670,7 +697,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
             decoration: BoxDecoration(
               color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius:
+                  BorderRadius.circular(16),
             ),
 
             child: Icon(
@@ -721,14 +749,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           Container(
-            padding: const EdgeInsets.symmetric(
+            padding:
+                const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 9,
             ),
 
             decoration: BoxDecoration(
               color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
             ),
 
             child: Text(
@@ -791,14 +821,16 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(16),
 
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(16),
 
         onTap: () {
           openGroupRoster(group);
         },
 
         child: Padding(
-          padding: const EdgeInsets.symmetric(
+          padding:
+              const EdgeInsets.symmetric(
             horizontal: 15,
             vertical: 14,
           ),
@@ -831,7 +863,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       group,
                       style: const TextStyle(
                         fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                            FontWeight.bold,
                       ),
                     ),
 
@@ -842,7 +875,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(
                         fontSize: 13,
                         color: Colors.grey,
-                        fontWeight: FontWeight.w500,
+                        fontWeight:
+                            FontWeight.w500,
                       ),
                     ),
                   ],
@@ -850,13 +884,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               Container(
-                padding: const EdgeInsets.symmetric(
+                padding:
+                    const EdgeInsets.symmetric(
                   horizontal: 9,
                   vertical: 6,
                 ),
 
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F6FA),
+                  color:
+                      const Color(0xFFF3F6FA),
                   borderRadius:
                       BorderRadius.circular(10),
                 ),
@@ -875,7 +911,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       shortStatus,
                       style: const TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                            FontWeight.bold,
                         color: primaryBlue,
                       ),
                     ),
