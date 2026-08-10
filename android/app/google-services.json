@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "747407306995",
+    "project_id": "operation-roster",
+    "storage_bucket": "operation-roster.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747407306995:android:c60fcd86373275c2b7c786",
+        "android_client_info": {
+          "package_name": "com.example.operation_roster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb_46aFSEOSFq8HM-RVKsVw2Ie-MflYcs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

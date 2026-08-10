@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -5,7 +7,10 @@ import '../services/roster_service.dart';
 import 'emergency_roster_screen.dart';
 import 'excel_roster_screen.dart';
 import 'group_roster_screen.dart';
+import 'interchange_requests_screen.dart';
+import 'interchange_screen.dart';
 import 'monthly_roster_screen.dart';
+import 'profile_setup_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -133,6 +138,71 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ===================================================
+  // LOGOUT CONFIRMATION
+  // ===================================================
+
+  Future<void> logout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          icon: const Icon(
+            Icons.logout_rounded,
+            color: primaryBlue,
+            size: 36,
+          ),
+          title: const Text(
+            'Logout?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'Do you want to logout from this account?',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text(
+                'Cancel',
+              ),
+            ),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: primaryBlue,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              icon: const Icon(
+                Icons.logout_rounded,
+                size: 18,
+              ),
+              label: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    await FirebaseAuth.instance.signOut();
+  }
+
+  // ===================================================
   // DATE PICKER
   // ===================================================
 
@@ -231,20 +301,276 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ===================================================
+  // OPEN INTERCHANGE
+  // ===================================================
+
+  void openInterchange() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const InterchangeScreen(),
+      ),
+    );
+  }
+
+  // ===================================================
+  // OPEN INTERCHANGE REQUESTS
+  // ===================================================
+
+  void openInterchangeRequests() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const InterchangeRequestsScreen(),
+      ),
+    );
+  }
+
+  // ===================================================
+  // OPEN PROFILE
+  // ===================================================
+
+  void openProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const ProfileSetupScreen(),
+      ),
+    );
+  }
+
+  // ===================================================
+  // PROFILE HEADER
+  // ===================================================
+
+  Widget profileHeader(
+    Map<String, dynamic>? data,
+  ) {
+    final currentUser =
+        FirebaseAuth.instance.currentUser;
+
+    final name =
+        (data?['name'] ?? '').toString().trim();
+
+    final group =
+        (data?['group'] ?? '').toString().trim();
+
+    final dutyType =
+        (data?['dutyType'] ?? 'shift')
+            .toString()
+            .trim()
+            .toLowerCase();
+
+    final displayName =
+        name.isNotEmpty
+            ? name
+            : (currentUser?.email ?? 'User');
+
+    final isRegular =
+        dutyType == 'regular';
+
+    final displayGroup =
+        isRegular
+            ? 'Regular'
+            : (group.isNotEmpty
+                ? 'Group $group'
+                : 'Group -');
+
+    final firstLetter =
+        displayName.isNotEmpty
+            ? displayName[0].toUpperCase()
+            : 'U';
+
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          18,
+          10,
+          18,
+          16,
+        ),
+        child: Row(
+          children: [
+            // =========================================
+            // PROFILE AVATAR
+            // =========================================
+
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFE3F2FD),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: 0.10,
+                    ),
+                    blurRadius: 7,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  firstLetter,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: primaryBlue,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(
+              width: 12,
+            ),
+
+            // =========================================
+            // NAME + DUTY TYPE
+            // =========================================
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(
+                    height: 4,
+                  ),
+
+                  Row(
+                    children: [
+                      Icon(
+                        isRegular
+                            ? Icons
+                                .person_outline_rounded
+                            : Icons
+                                .groups_rounded,
+                        size: 17,
+                        color: primaryBlue,
+                      ),
+
+                      const SizedBox(
+                        width: 5,
+                      ),
+
+                      Flexible(
+                        child: Text(
+                          displayGroup,
+                          maxLines: 1,
+                          overflow:
+                              TextOverflow.ellipsis,
+                          style:
+                              const TextStyle(
+                            fontSize: 13,
+                            fontWeight:
+                                FontWeight.w600,
+                            color:
+                                primaryBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // =========================================
+            // PROFILE BUTTON
+            // =========================================
+
+            FilledButton.icon(
+              onPressed: openProfile,
+              icon: const Icon(
+                Icons.person_rounded,
+                size: 16,
+              ),
+              label: const Text(
+                'Profile',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight:
+                      FontWeight.bold,
+                ),
+              ),
+              style:
+                  FilledButton.styleFrom(
+                backgroundColor:
+                    const Color(0xFFE3F2FD),
+                foregroundColor:
+                    primaryBlue,
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 9,
+                ),
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(
+                    10,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===================================================
   // BUILD
   // ===================================================
 
   @override
   Widget build(BuildContext context) {
     final dayGroup =
-        RosterService.getDayGroup(selectedDate) ?? '-';
+        RosterService.getDayGroup(
+              selectedDate,
+            ) ??
+            '-';
 
     final nightGroup =
-        RosterService.getNightGroup(selectedDate) ?? '-';
+        RosterService.getNightGroup(
+              selectedDate,
+            ) ??
+            '-';
+
+    final currentUser =
+        FirebaseAuth.instance.currentUser;
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvokedWithResult:
+          (didPop, result) async {
         if (didPop) {
           return;
         }
@@ -256,405 +582,865 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
 
-        SystemNavigator.pop(animated: true);
+        SystemNavigator.pop(
+          animated: true,
+        );
       },
-
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor:
+            backgroundColor,
+
+        // =================================================
+        // APP BAR
+        // =================================================
 
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: primaryBlue,
-          foregroundColor: Colors.white,
+          backgroundColor:
+              primaryBlue,
+          foregroundColor:
+              Colors.white,
           centerTitle: true,
+
           title: const Text(
             'Operation Duty Roster',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight:
+                  FontWeight.bold,
               fontSize: 20,
             ),
           ),
-        ),
 
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+          actions: [
+            // =============================================
+            // NOTIFICATION
+            // =============================================
 
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                // =========================================
-                // PAGE TITLE
-                // =========================================
+            if (currentUser != null)
+              StreamBuilder<
+                  QuerySnapshot<
+                      Map<String, dynamic>>>(
+                stream:
+                    FirebaseFirestore
+                        .instance
+                        .collection(
+                          'interchange_requests',
+                        )
+                        .where(
+                          'toUserId',
+                          isEqualTo:
+                              currentUser.uid,
+                        )
+                        .where(
+                          'status',
+                          isEqualTo:
+                              'pending',
+                        )
+                        .snapshots(),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        isToday
-                            ? "Today's Duty"
-                            : 'Selected Date Duty',
-                        style: const TextStyle(
-                          fontSize: 27,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
+                builder: (
+                  context,
+                  snapshot,
+                ) {
+                  final count =
+                      snapshot.data
+                              ?.docs.length ??
+                          0;
+
+                  return Padding(
+                    padding:
+                        const EdgeInsets.only(
+                      right: 2,
                     ),
-
-                    if (isToday)
-                      Container(
-                        padding:
-                            const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              const Color(0xFFE3F2FD),
-                          borderRadius:
-                              BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'TODAY',
-                          style: TextStyle(
-                            color: primaryBlue,
-                            fontSize: 11,
-                            fontWeight:
-                                FontWeight.bold,
+                    child: Stack(
+                      clipBehavior:
+                          Clip.none,
+                      children: [
+                        IconButton(
+                          tooltip:
+                              'Interchange Requests',
+                          onPressed:
+                              openInterchangeRequests,
+                          icon:
+                              const Icon(
+                            Icons
+                                .notifications_rounded,
+                            size: 27,
                           ),
                         ),
-                      ),
-                  ],
-                ),
 
-                const SizedBox(height: 16),
-
-                // =========================================
-                // DATE SELECTOR
-                // =========================================
-
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Colors.black.withValues(
-                          alpha: 0.05,
-                        ),
-                        blurRadius: 12,
-                        offset:
-                            const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: previousDay,
-                        icon: const Icon(
-                          Icons.chevron_left_rounded,
-                          size: 32,
-                        ),
-                      ),
-
-                      Expanded(
-                        child: InkWell(
-                          borderRadius:
-                              BorderRadius.circular(14),
-                          onTap: selectDate,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(
-                              vertical: 17,
-                              horizontal: 6,
-                            ),
-                            child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons
-                                      .calendar_month_rounded,
-                                  color: primaryBlue,
-                                  size: 23,
+                        if (count > 0)
+                          Positioned(
+                            right: 2,
+                            top: 5,
+                            child:
+                                Container(
+                              constraints:
+                                  const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              padding:
+                                  const EdgeInsets
+                                      .symmetric(
+                                horizontal: 4,
+                              ),
+                              decoration:
+                                  BoxDecoration(
+                                color:
+                                    Colors.red,
+                                borderRadius:
+                                    BorderRadius
+                                        .circular(
+                                  20,
                                 ),
+                                border:
+                                    Border.all(
+                                  color:
+                                      primaryBlue,
+                                  width:
+                                      1.5,
+                                ),
+                              ),
+                              child:
+                                  Text(
+                                count > 99
+                                    ? '99+'
+                                    : count
+                                        .toString(),
+                                textAlign:
+                                    TextAlign
+                                        .center,
+                                style:
+                                    const TextStyle(
+                                  color:
+                                      Colors.white,
+                                  fontSize:
+                                      10,
+                                  fontWeight:
+                                      FontWeight
+                                          .bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
 
-                                const SizedBox(width: 9),
+            // =============================================
+            // LOGOUT
+            // =============================================
 
-                                Flexible(
-                                  child: Text(
-                                    formatDate(
-                                      selectedDate,
+            IconButton(
+              tooltip:
+                  'Logout',
+              onPressed:
+                  logout,
+              icon:
+                  const Icon(
+                Icons.logout_rounded,
+                size: 25,
+              ),
+            ),
+
+            const SizedBox(
+              width: 4,
+            ),
+          ],
+        ),
+
+        // =================================================
+        // BODY
+        // =================================================
+
+        body: SafeArea(
+          child:
+              currentUser == null
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator(),
+                    )
+                  : StreamBuilder<
+                      DocumentSnapshot<
+                          Map<String, dynamic>>>(
+                      stream:
+                          FirebaseFirestore
+                              .instance
+                              .collection(
+                                'users',
+                              )
+                              .doc(
+                                currentUser.uid,
+                              )
+                              .snapshots(),
+
+                      builder: (
+                        context,
+                        profileSnapshot,
+                      ) {
+                        final profileData =
+                            profileSnapshot
+                                .data
+                                ?.data();
+
+                        final dutyType =
+                            (profileData?[
+                                        'dutyType'] ??
+                                    'shift')
+                                .toString()
+                                .trim()
+                                .toLowerCase();
+
+                        final isRegular =
+                            dutyType ==
+                                'regular';
+
+                        return SingleChildScrollView(
+                          padding:
+                              const EdgeInsets
+                                  .fromLTRB(
+                            16,
+                            0,
+                            16,
+                            16,
+                          ),
+
+                          child:
+                              Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment
+                                    .start,
+
+                            children: [
+                              // =================================
+                              // PROFILE HEADER
+                              // =================================
+
+                              profileHeader(
+                                profileData,
+                              ),
+
+                              const SizedBox(
+                                height: 20,
+                              ),
+
+                              // =================================
+                              // PAGE TITLE
+                              // =================================
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child:
+                                        Text(
+                                      isToday
+                                          ? "Today's Duty"
+                                          : 'Selected Date Duty',
+                                      style:
+                                          const TextStyle(
+                                        fontSize:
+                                            27,
+                                        fontWeight:
+                                            FontWeight
+                                                .bold,
+                                        letterSpacing:
+                                            -0.5,
+                                      ),
                                     ),
-                                    textAlign:
-                                        TextAlign.center,
-                                    style:
-                                        const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight:
-                                          FontWeight.bold,
+                                  ),
+
+                                  if (isToday)
+                                    Container(
+                                      padding:
+                                          const EdgeInsets
+                                              .symmetric(
+                                        horizontal:
+                                            10,
+                                        vertical:
+                                            6,
+                                      ),
+                                      decoration:
+                                          BoxDecoration(
+                                        color:
+                                            const Color(
+                                          0xFFE3F2FD,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius
+                                                .circular(
+                                          20,
+                                        ),
+                                      ),
+                                      child:
+                                          const Text(
+                                        'TODAY',
+                                        style:
+                                            TextStyle(
+                                          color:
+                                              primaryBlue,
+                                          fontSize:
+                                              11,
+                                          fontWeight:
+                                              FontWeight
+                                                  .bold,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(
+                                height: 16,
+                              ),
+
+                              // =================================
+                              // DATE SELECTOR
+                              // =================================
+
+                              Container(
+                                decoration:
+                                    BoxDecoration(
+                                  color:
+                                      Colors.white,
+                                  borderRadius:
+                                      BorderRadius
+                                          .circular(
+                                    18,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors
+                                          .black
+                                          .withValues(
+                                        alpha:
+                                            0.05,
+                                      ),
+                                      blurRadius:
+                                          12,
+                                      offset:
+                                          const Offset(
+                                        0,
+                                        4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                child:
+                                    Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed:
+                                          previousDay,
+                                      icon:
+                                          const Icon(
+                                        Icons
+                                            .chevron_left_rounded,
+                                        size:
+                                            32,
+                                      ),
+                                    ),
+
+                                    Expanded(
+                                      child:
+                                          InkWell(
+                                        borderRadius:
+                                            BorderRadius
+                                                .circular(
+                                          14,
+                                        ),
+                                        onTap:
+                                            selectDate,
+                                        child:
+                                            Padding(
+                                          padding:
+                                              const EdgeInsets
+                                                  .symmetric(
+                                            vertical:
+                                                17,
+                                            horizontal:
+                                                6,
+                                          ),
+                                          child:
+                                              Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .center,
+                                            children: [
+                                              const Icon(
+                                                Icons
+                                                    .calendar_month_rounded,
+                                                color:
+                                                    primaryBlue,
+                                                size:
+                                                    23,
+                                              ),
+                                              const SizedBox(
+                                                width:
+                                                    9,
+                                              ),
+                                              Flexible(
+                                                child:
+                                                    Text(
+                                                  formatDate(
+                                                    selectedDate,
+                                                  ),
+                                                  textAlign:
+                                                      TextAlign
+                                                          .center,
+                                                  style:
+                                                      const TextStyle(
+                                                    fontSize:
+                                                        17,
+                                                    fontWeight:
+                                                        FontWeight
+                                                            .bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    IconButton(
+                                      onPressed:
+                                          nextDay,
+                                      icon:
+                                          const Icon(
+                                        Icons
+                                            .chevron_right_rounded,
+                                        size:
+                                            32,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              if (!isToday) ...[
+                                const SizedBox(
+                                  height: 7,
+                                ),
+                                Align(
+                                  alignment:
+                                      Alignment
+                                          .centerRight,
+                                  child:
+                                      TextButton.icon(
+                                    onPressed:
+                                        goToToday,
+                                    icon:
+                                        const Icon(
+                                      Icons
+                                          .today_rounded,
+                                      size:
+                                          18,
+                                    ),
+                                    label:
+                                        const Text(
+                                      'Back to Today',
+                                      style:
+                                          TextStyle(
+                                        fontWeight:
+                                            FontWeight
+                                                .w600,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
-                            ),
+
+                              const SizedBox(
+                                height: 18,
+                              ),
+
+                              // =================================
+                              // DAY DUTY
+                              // =================================
+
+                              dutyCard(
+                                icon:
+                                    Icons
+                                        .wb_sunny_rounded,
+                                title:
+                                    'DAY DUTY',
+                                time:
+                                    '8:00 AM - 8:00 PM',
+                                group:
+                                    dayGroup,
+                                label:
+                                    '12 HOURS',
+                              ),
+
+                              const SizedBox(
+                                height: 14,
+                              ),
+
+                              // =================================
+                              // NIGHT DUTY
+                              // =================================
+
+                              dutyCard(
+                                icon:
+                                    Icons
+                                        .nightlight_round,
+                                title:
+                                    'NIGHT DUTY',
+                                time:
+                                    '8:00 PM - 8:00 AM',
+                                group:
+                                    nightGroup,
+                                label:
+                                    '12 HOURS',
+                              ),
+
+                              const SizedBox(
+                                height: 30,
+                              ),
+
+                              // =================================
+                              // GROUP STATUS
+                              // =================================
+
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons
+                                        .groups_rounded,
+                                    color:
+                                        primaryBlue,
+                                    size:
+                                        25,
+                                  ),
+                                  SizedBox(
+                                    width:
+                                        8,
+                                  ),
+                                  Text(
+                                    'Group Status',
+                                    style:
+                                        TextStyle(
+                                      fontSize:
+                                          22,
+                                      fontWeight:
+                                          FontWeight
+                                              .bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(
+                                height: 5,
+                              ),
+
+                              const Text(
+                                'Tap any group to view its full roster',
+                                style:
+                                    TextStyle(
+                                  fontSize:
+                                      13,
+                                  color:
+                                      Colors.grey,
+                                ),
+                              ),
+
+                              const SizedBox(
+                                height: 15,
+                              ),
+
+                              groupStatusCard(
+                                'G-A',
+                                selectedDate,
+                              ),
+
+                              const SizedBox(
+                                height: 10,
+                              ),
+
+                              groupStatusCard(
+                                'G-B',
+                                selectedDate,
+                              ),
+
+                              const SizedBox(
+                                height: 10,
+                              ),
+
+                              groupStatusCard(
+                                'G-C',
+                                selectedDate,
+                              ),
+
+                              const SizedBox(
+                                height: 10,
+                              ),
+
+                              groupStatusCard(
+                                'G-D',
+                                selectedDate,
+                              ),
+
+                              const SizedBox(
+                                height: 30,
+                              ),
+
+                              // =================================
+                              // EMERGENCY ROSTER
+                              // =================================
+
+                              SizedBox(
+                                width:
+                                    double.infinity,
+                                height:
+                                    58,
+                                child:
+                                    OutlinedButton
+                                        .icon(
+                                  style:
+                                      OutlinedButton
+                                          .styleFrom(
+                                    foregroundColor:
+                                        primaryBlue,
+                                    backgroundColor:
+                                        Colors.white,
+                                    side:
+                                        const BorderSide(
+                                      color:
+                                          primaryBlue,
+                                      width:
+                                          1.5,
+                                    ),
+                                    shape:
+                                        RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius
+                                              .circular(
+                                        16,
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed:
+                                      openEmergencyRoster,
+                                  icon:
+                                      const Icon(
+                                    Icons
+                                        .emergency_rounded,
+                                    size:
+                                        23,
+                                  ),
+                                  label:
+                                      const Text(
+                                    'Emergency Roster',
+                                    style:
+                                        TextStyle(
+                                      fontSize:
+                                          17,
+                                      fontWeight:
+                                          FontWeight
+                                              .bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(
+                                height: 12,
+                              ),
+
+                              // =================================
+                              // MONTHLY ROSTER
+                              // =================================
+
+                              SizedBox(
+                                width:
+                                    double.infinity,
+                                height:
+                                    58,
+                                child:
+                                    FilledButton
+                                        .icon(
+                                  style:
+                                      FilledButton
+                                          .styleFrom(
+                                    backgroundColor:
+                                        primaryBlue,
+                                    foregroundColor:
+                                        Colors.white,
+                                    shape:
+                                        RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius
+                                              .circular(
+                                        16,
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed:
+                                      openMonthlyRoster,
+                                  icon:
+                                      const Icon(
+                                    Icons
+                                        .calendar_view_month_rounded,
+                                    size:
+                                        23,
+                                  ),
+                                  label:
+                                      const Text(
+                                    'View Monthly Roster',
+                                    style:
+                                        TextStyle(
+                                      fontSize:
+                                          17,
+                                      fontWeight:
+                                          FontWeight
+                                              .bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(
+                                height: 12,
+                              ),
+
+                              // =================================
+                              // EXCEL DUTY ROSTER
+                              // =================================
+
+                              SizedBox(
+                                width:
+                                    double.infinity,
+                                height:
+                                    58,
+                                child:
+                                    OutlinedButton
+                                        .icon(
+                                  style:
+                                      OutlinedButton
+                                          .styleFrom(
+                                    foregroundColor:
+                                        primaryBlue,
+                                    backgroundColor:
+                                        Colors.white,
+                                    side:
+                                        const BorderSide(
+                                      color:
+                                          primaryBlue,
+                                      width:
+                                          1.5,
+                                    ),
+                                    shape:
+                                        RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius
+                                              .circular(
+                                        16,
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed:
+                                      openExcelRoster,
+                                  icon:
+                                      const Icon(
+                                    Icons
+                                        .table_chart_rounded,
+                                    size:
+                                        23,
+                                  ),
+                                  label:
+                                      const Text(
+                                    'Excel Duty Roster',
+                                    style:
+                                        TextStyle(
+                                      fontSize:
+                                          17,
+                                      fontWeight:
+                                          FontWeight
+                                              .bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // =================================
+                              // PERSON INTERCHANGE
+                              // SHIFT USER ONLY
+                              // =================================
+
+                              if (!isRegular) ...[
+                                const SizedBox(
+                                  height: 12,
+                                ),
+
+                                SizedBox(
+                                  width:
+                                      double.infinity,
+                                  height:
+                                      58,
+                                  child:
+                                      OutlinedButton
+                                          .icon(
+                                    style:
+                                        OutlinedButton
+                                            .styleFrom(
+                                      foregroundColor:
+                                          primaryBlue,
+                                      backgroundColor:
+                                          Colors.white,
+                                      side:
+                                          const BorderSide(
+                                        color:
+                                            primaryBlue,
+                                        width:
+                                            1.5,
+                                      ),
+                                      shape:
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius
+                                                .circular(
+                                          16,
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed:
+                                        openInterchange,
+                                    icon:
+                                        const Icon(
+                                      Icons
+                                          .swap_horiz_rounded,
+                                      size:
+                                          23,
+                                    ),
+                                    label:
+                                        const Text(
+                                      'Person Interchange',
+                                      style:
+                                          TextStyle(
+                                        fontSize:
+                                            17,
+                                        fontWeight:
+                                            FontWeight
+                                                .bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-
-                      IconButton(
-                        onPressed: nextDay,
-                        icon: const Icon(
-                          Icons.chevron_right_rounded,
-                          size: 32,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                if (!isToday) ...[
-                  const SizedBox(height: 7),
-
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: goToToday,
-                      icon: const Icon(
-                        Icons.today_rounded,
-                        size: 18,
-                      ),
-                      label: const Text(
-                        'Back to Today',
-                        style: TextStyle(
-                          fontWeight:
-                              FontWeight.w600,
-                        ),
-                      ),
+                        );
+                      },
                     ),
-                  ),
-                ],
-
-                const SizedBox(height: 18),
-
-                // =========================================
-                // DAY DUTY
-                // =========================================
-
-                dutyCard(
-                  icon: Icons.wb_sunny_rounded,
-                  title: 'DAY DUTY',
-                  time: '8:00 AM - 8:00 PM',
-                  group: dayGroup,
-                  label: '12 HOURS',
-                ),
-
-                const SizedBox(height: 14),
-
-                // =========================================
-                // NIGHT DUTY
-                // =========================================
-
-                dutyCard(
-                  icon: Icons.nightlight_round,
-                  title: 'NIGHT DUTY',
-                  time: '8:00 PM - 8:00 AM',
-                  group: nightGroup,
-                  label: '12 HOURS',
-                ),
-
-                const SizedBox(height: 30),
-
-                // =========================================
-                // GROUP STATUS TITLE
-                // =========================================
-
-                const Row(
-                  children: [
-                    Icon(
-                      Icons.groups_rounded,
-                      color: primaryBlue,
-                      size: 25,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Group Status',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 5),
-
-                const Text(
-                  'Tap any group to view its full roster',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                groupStatusCard(
-                  'G-A',
-                  selectedDate,
-                ),
-
-                const SizedBox(height: 10),
-
-                groupStatusCard(
-                  'G-B',
-                  selectedDate,
-                ),
-
-                const SizedBox(height: 10),
-
-                groupStatusCard(
-                  'G-C',
-                  selectedDate,
-                ),
-
-                const SizedBox(height: 10),
-
-                groupStatusCard(
-                  'G-D',
-                  selectedDate,
-                ),
-
-                const SizedBox(height: 30),
-
-                // =========================================
-                // EMERGENCY ROSTER BUTTON
-                // =========================================
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 58,
-                  child: OutlinedButton.icon(
-                    style:
-                        OutlinedButton.styleFrom(
-                      foregroundColor: primaryBlue,
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(
-                        color: primaryBlue,
-                        width: 1.5,
-                      ),
-                      shape:
-                          RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed:
-                        openEmergencyRoster,
-                    icon: const Icon(
-                      Icons.emergency_rounded,
-                      size: 23,
-                    ),
-                    label: const Text(
-                      'Emergency Roster',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // =========================================
-                // MONTHLY ROSTER BUTTON
-                // =========================================
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 58,
-                  child: FilledButton.icon(
-                    style:
-                        FilledButton.styleFrom(
-                      backgroundColor: primaryBlue,
-                      foregroundColor: Colors.white,
-                      shape:
-                          RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed:
-                        openMonthlyRoster,
-                    icon: const Icon(
-                      Icons
-                          .calendar_view_month_rounded,
-                      size: 23,
-                    ),
-                    label: const Text(
-                      'View Monthly Roster',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // =========================================
-                // EXCEL DUTY ROSTER BUTTON
-                // =========================================
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 58,
-                  child: OutlinedButton.icon(
-                    style:
-                        OutlinedButton.styleFrom(
-                      foregroundColor: primaryBlue,
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(
-                        color: primaryBlue,
-                        width: 1.5,
-                      ),
-                      shape:
-                          RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed:
-                        openExcelRoster,
-                    icon: const Icon(
-                      Icons.table_chart_rounded,
-                      size: 23,
-                    ),
-                    label: const Text(
-                      'Excel Duty Roster',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -672,35 +1458,42 @@ class _HomeScreenState extends State<HomeScreen> {
     required String label,
   }) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(19),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+      width:
+          double.infinity,
+      padding:
+          const EdgeInsets.all(19),
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+        borderRadius:
+            BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
+            color:
+                Colors.black.withValues(
               alpha: 0.055,
             ),
             blurRadius: 14,
-            offset: const Offset(0, 5),
+            offset:
+                const Offset(0, 5),
           ),
         ],
       ),
-
       child: Row(
         children: [
           Container(
             width: 56,
             height: 56,
-
-            decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
+            decoration:
+                BoxDecoration(
+              color:
+                  const Color(0xFFE3F2FD),
               borderRadius:
-                  BorderRadius.circular(16),
+                  BorderRadius.circular(
+                16,
+              ),
             ),
-
             child: Icon(
               icon,
               size: 31,
@@ -708,40 +1501,54 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(
+            width: 16,
+          ),
 
           Expanded(
-            child: Column(
+            child:
+                Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style:
+                      const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                     letterSpacing: 0.3,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(
+                  height: 4,
+                ),
 
                 Text(
                   time,
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style:
+                      const TextStyle(
+                    color:
+                        Colors.grey,
                     fontSize: 13,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(
+                  height: 4,
+                ),
 
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: primaryBlue,
+                  style:
+                      const TextStyle(
+                    color:
+                        primaryBlue,
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
               ],
@@ -750,23 +1557,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Container(
             padding:
-                const EdgeInsets.symmetric(
+                const EdgeInsets
+                    .symmetric(
               horizontal: 14,
               vertical: 9,
             ),
-
-            decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
+            decoration:
+                BoxDecoration(
+              color:
+                  const Color(0xFFE3F2FD),
               borderRadius:
-                  BorderRadius.circular(12),
+                  BorderRadius.circular(
+                12,
+              ),
             ),
-
-            child: Text(
+            child:
+                Text(
               group,
-              style: const TextStyle(
+              style:
+                  const TextStyle(
                 fontSize: 23,
-                fontWeight: FontWeight.bold,
-                color: primaryBlue,
+                fontWeight:
+                    FontWeight.bold,
+                color:
+                    primaryBlue,
               ),
             ),
           ),
@@ -784,7 +1598,10 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime date,
   ) {
     final status =
-        RosterService.getStatus(group, date);
+        RosterService.getStatus(
+      group,
+      date,
+    );
 
     final detailedStatus =
         RosterService.getDetailedStatus(
@@ -797,84 +1614,117 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (status) {
       case 'D':
-        icon = Icons.wb_sunny_rounded;
-        shortStatus = 'DAY';
+        icon =
+            Icons.wb_sunny_rounded;
+        shortStatus =
+            'DAY';
         break;
 
       case 'N':
-        icon = Icons.nightlight_round;
-        shortStatus = 'NIGHT';
+        icon =
+            Icons.nightlight_round;
+        shortStatus =
+            'NIGHT';
         break;
 
       case 'SR':
-        icon = Icons.beach_access_rounded;
-        shortStatus = 'SR';
+        icon =
+            Icons.beach_access_rounded;
+        shortStatus =
+            'SR';
         break;
 
       default:
-        icon = Icons.hotel_rounded;
-        shortStatus = 'REST';
+        icon =
+            Icons.hotel_rounded;
+        shortStatus =
+            'REST';
     }
 
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-
-      child: InkWell(
+      color:
+          Colors.white,
+      borderRadius:
+          BorderRadius.circular(
+        16,
+      ),
+      child:
+          InkWell(
         borderRadius:
-            BorderRadius.circular(16),
-
+            BorderRadius.circular(
+          16,
+        ),
         onTap: () {
-          openGroupRoster(group);
+          openGroupRoster(
+            group,
+          );
         },
-
-        child: Padding(
+        child:
+            Padding(
           padding:
-              const EdgeInsets.symmetric(
+              const EdgeInsets
+                  .symmetric(
             horizontal: 15,
             vertical: 14,
           ),
-
-          child: Row(
+          child:
+              Row(
             children: [
               CircleAvatar(
                 radius: 23,
                 backgroundColor:
-                    const Color(0xFFE3F2FD),
-
-                child: Text(
-                  group.replaceFirst('G-', ''),
-                  style: const TextStyle(
+                    const Color(
+                  0xFFE3F2FD,
+                ),
+                child:
+                    Text(
+                  group.replaceFirst(
+                    'G-',
+                    '',
+                  ),
+                  style:
+                      const TextStyle(
                     fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: primaryBlue,
+                    fontWeight:
+                        FontWeight.bold,
+                    color:
+                        primaryBlue,
                   ),
                 ),
               ),
 
-              const SizedBox(width: 13),
+              const SizedBox(
+                width: 13,
+              ),
 
               Expanded(
-                child: Column(
+                child:
+                    Column(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      CrossAxisAlignment
+                          .start,
                   children: [
                     Text(
                       group,
-                      style: const TextStyle(
+                      style:
+                          const TextStyle(
                         fontSize: 17,
                         fontWeight:
                             FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 3),
+                    const SizedBox(
+                      height: 3,
+                    ),
 
                     Text(
                       detailedStatus,
-                      style: const TextStyle(
+                      style:
+                          const TextStyle(
                         fontSize: 13,
-                        color: Colors.grey,
+                        color:
+                            Colors.grey,
                         fontWeight:
                             FontWeight.w500,
                       ),
@@ -885,46 +1735,60 @@ class _HomeScreenState extends State<HomeScreen> {
 
               Container(
                 padding:
-                    const EdgeInsets.symmetric(
+                    const EdgeInsets
+                        .symmetric(
                   horizontal: 9,
                   vertical: 6,
                 ),
-
-                decoration: BoxDecoration(
+                decoration:
+                    BoxDecoration(
                   color:
-                      const Color(0xFFF3F6FA),
+                      const Color(
+                    0xFFF3F6FA,
+                  ),
                   borderRadius:
-                      BorderRadius.circular(10),
+                      BorderRadius.circular(
+                    10,
+                  ),
                 ),
-
-                child: Row(
+                child:
+                    Row(
                   children: [
                     Icon(
                       icon,
                       size: 17,
-                      color: primaryBlue,
+                      color:
+                          primaryBlue,
                     ),
 
-                    const SizedBox(width: 5),
+                    const SizedBox(
+                      width: 5,
+                    ),
 
                     Text(
                       shortStatus,
-                      style: const TextStyle(
+                      style:
+                          const TextStyle(
                         fontSize: 10,
                         fontWeight:
                             FontWeight.bold,
-                        color: primaryBlue,
+                        color:
+                            primaryBlue,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(width: 5),
+              const SizedBox(
+                width: 5,
+              ),
 
               const Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.grey,
+                Icons
+                    .chevron_right_rounded,
+                color:
+                    Colors.grey,
               ),
             ],
           ),

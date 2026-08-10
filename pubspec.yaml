@@ -23,6 +23,10 @@ dependencies:
   # Share / Save generated Excel file
   share_plus: ^13.3.0
   archive: ^3.6.1
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  cloud_firestore: ^6.8.0
+  firebase_messaging: ^16.5.0
 
 dev_dependencies:
   flutter_test:
