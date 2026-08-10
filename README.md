@@ -1,26 +1,26 @@
 # 📅 Operation Roster
 
-A Flutter-based duty roster management application for managing **day duty, night duty, rest schedules, group rosters, and emergency rosters**.
-
-[![Flutter](https://img.shields.io/badge/Flutter-Mobile%20App-blue)](https://flutter.dev/)
-![Platform](https://img.shields.io/badge/Platform-Android-green)
-![Version](https://img.shields.io/badge/Version-v1.0.0-blue)
+A Flutter-based duty roster management application for managing **day duty, night duty, rest schedules, group rosters, emergency rosters, and person interchange requests**.
 
 ## 📥 Download APK
 
-### 🆕 Latest Version — v1.0.1
+### 🆕 Latest Version — v1.0.2
 
-[⬇️ Download Operation Roster v1.0.1 — ARM64 (17.3 MB)](https://github.com/ashraful00097/operation-roster/releases/download/v1.0.1/app-arm64-v8a-release.apk)
+[⬇️ Download Operation Roster v1.0.2 — ARM64 APK](https://github.com/ashraful00097/operation-roster/releases/download/v1.0.2/app-arm64-v8a-release.apk)
 
 Recommended for most modern Android phones.
 
+### 📦 Previous Version — v1.0.1
+
+[⬇️ Download Operation Roster v1.0.1 — ARM64 APK](https://github.com/ashraful00097/operation-roster/releases/download/v1.0.1/app-arm64-v8a-release.apk)
+
 ### 📦 Universal Version — v1.0.0
 
-[⬇️ Download Operation Roster v1.0.0 — Universal APK (47.6 MB)](https://github.com/ashraful00097/operation-roster/releases/download/v1.0.0/app-release.apk)
+[⬇️ Download Operation Roster v1.0.0 — Universal APK](https://github.com/ashraful00097/operation-roster/releases/download/v1.0.0/app-release.apk)
 
 Universal APK supports a wider range of Android device architectures.
 
-> **Recommended:** Download v1.0.1 (17.3 MB) for most modern Android phones.
+> **Recommended:** Download v1.0.2 for most modern Android phones.
 
 ## ✨ Features
 
@@ -32,8 +32,46 @@ Universal APK supports a wider range of Android device architectures.
 - 🚨 Emergency roster management
 - 📆 Navigate between dates and months
 - 🔵 Automatic highlighting of today's roster
+- 👤 User profile management
+- 🔄 Shift and Regular duty types
+- 🔁 Person Interchange for Shift users
+- 🔔 Interchange request notification badge
+- 🚫 Person Interchange disabled for Regular users
 - 📱 Clean and simple mobile interface
 
+## 👤 Duty Types
+
+### 🔄 Shift
+
+Shift users are assigned to a duty group such as:
+
+- G-A
+- G-B
+- G-C
+- G-D
+
+Shift users can use the **Person Interchange** feature.
+
+### 👤 Regular
+
+Regular users do not have a duty group and do not have access to **Person Interchange**.
+
+## 🛠️ Technology
+
+- Flutter
+- Dart
+- Firebase Authentication
+- Cloud Firestore
+- Shared Preferences
+
+## 📌 Latest Update — v1.0.2
+
+- Added Shift / Regular profile system
+- Improved Home screen profile information
+- Person Interchange available only for Shift users
+- Regular users no longer have a duty group
+- Improved interchange request notification badge
+- UI and stability improvements
 ## 📱 App Screenshots
 
 <p align="center">
